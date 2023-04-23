@@ -27,8 +27,6 @@ async fn health_check_responds_ok() {
 #[tokio::test]
 async fn subsribe_returns_ok_for_valid_form() {
     let test_app = spawn_app().await;
-    let configuration = get_configuration().expect("Failed to read configuration.");
-    let connection_string = configuration.database.connection_string();
 
     let client = reqwest::Client::new();
 

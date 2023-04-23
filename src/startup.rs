@@ -1,6 +1,6 @@
 use std::net::TcpListener;
 
-use actix_web::{dev::Server, web, App, HttpServer};
+use actix_web::{dev::Server, middleware::Logger, web, App, HttpServer};
 use sqlx::PgPool;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -29,6 +29,7 @@ pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io:
 
     let server = HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
             .service(health_check)
             .service(subscribe)
             .service(
