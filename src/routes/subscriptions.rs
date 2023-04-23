@@ -1,4 +1,8 @@
+use chrono::Utc;
+use uuid::Uuid;
+
 use actix_web::{post, web, HttpResponse, Responder};
+use sqlx::PgPool;
 
 use crate::models::SubscribeRequest;
 
@@ -12,7 +16,28 @@ use crate::models::SubscribeRequest;
     tag = "zero2prod"
 )]
 #[post("/subscribe")]
-async fn subscribe(web::Form(form): web::Form<SubscribeRequest>) -> impl Responder {
+async fn subscribe(
+    web::Form(form): web::Form<SubscribeRequest>,
+    connection: web::Data<PgPool>,
+) -> impl Responder {
     log::debug!("Received subscription request: {:?}", form);
-    HttpResponse::Created()
+    match sqlx::query!(
+        r#"
+        INSERT INTO subscriptions (id, email, name, subscribed_at)
+        VALUES ($1, $2, $3, $4)
+        "#,
+        Uuid::new_v4(),
+        form.email,
+        form.name,
+        Utc::now()
+    )
+    .execute(connection.get_ref())
+    .await
+    {
+        Ok(_) => HttpResponse::Created(),
+        Err(e) => {
+            log::error!("Failed to execute query: {}", e);
+            HttpResponse::InternalServerError()
+        }
+    }
 }

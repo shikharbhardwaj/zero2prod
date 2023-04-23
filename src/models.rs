@@ -5,8 +5,8 @@ use utoipa::ToSchema;
 #[derive(Deserialize, ToSchema, Clone, Debug)]
 pub(super) struct SubscribeRequest {
     #[schema(example = "John Doe")]
-    name: String,
+    pub name: String,
 
     #[schema(example = "jonhdoe@example.com")]
-    email: String,
+    pub email: String,
 }
