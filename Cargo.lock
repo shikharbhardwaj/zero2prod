@@ -2003,6 +2003,8 @@ dependencies = [
  "env_logger",
  "log",
  "reqwest",
+ "serde",
+ "serde_json",
  "tokio",
  "utoipa",
  "utoipa-swagger-ui",
