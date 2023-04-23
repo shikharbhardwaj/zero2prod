@@ -67,7 +67,7 @@ fn spawn_app() -> String {
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to a local port.");
     let addr = listener.local_addr().expect("Could not get local address.");
 
-    let server = zero2prod::run(listener).expect("Failed to run app.");
+    let server = zero2prod::startup::run(listener).expect("Failed to run app.");
     let _ = tokio::spawn(server);
 
     format!("http://{}", addr.to_string())

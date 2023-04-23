@@ -28,5 +28,17 @@ utoipa-swagger-ui = { version = "3.1.3", features = ["actix-web"] }
 [target.x86_64-unknown-linux-gnu]
 rustflags = ["-C", "linker=clang", "-C", "link-arg=-fuse-ld=lld"]
 
+[dependencies.sqlx]
+version = "0.6"
+default-features = false
+features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate"
+]
+
 [dev-dependencies]
 reqwest = "0.11.16"
