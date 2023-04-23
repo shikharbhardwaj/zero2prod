@@ -1,6 +1,7 @@
 use std::net::TcpListener;
 
-
+use sqlx::{Connection, PgConnection};
+use zero2prod::configuration::get_configuration;
 
 #[tokio::test]
 async fn health_check_responds_ok() {
@@ -20,6 +21,12 @@ async fn health_check_responds_ok() {
 #[tokio::test]
 async fn subsribe_returns_ok_for_valid_form() {
     let url = spawn_app();
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let connection_string = configuration.database.connection_string();
+
+    let mut connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to Postgres.");
     let client = reqwest::Client::new();
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
@@ -32,8 +39,13 @@ async fn subsribe_returns_ok_for_valid_form() {
         .expect("Failed to execute request.");
 
     assert_eq!(201, response.status().as_u16());
+    let saved = sqlx::query!("SELECT email, name FROM subscriptions")
+        .fetch_one(&mut connection)
+        .await
+        .expect("Failed to fetch saved subscription.");
+    assert_eq!(saved.email, "ursula_le_guin@gmail.com");
+    assert_eq!(saved.name, "le guin");
 }
-
 
 #[tokio::test]
 async fn subsribe_returns_bad_request_for_missing_data() {
@@ -43,7 +55,7 @@ async fn subsribe_returns_bad_request_for_missing_data() {
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
         ("email=ursula_le_guin%40gmail.com", "missing the name"),
-        ("", "missing both name and email")
+        ("", "missing both name and email"),
     ];
 
     for (invalid_body, error_message) in test_cases {
@@ -55,10 +67,12 @@ async fn subsribe_returns_bad_request_for_missing_data() {
             .await
             .expect("Failed to execute request.");
 
-        assert_eq!(400,
+        assert_eq!(
+            400,
             response.status().as_u16(),
             "The API did  not fail with 400 bad request when the payload was
-            {}.", error_message
+            {}.",
+            error_message
         );
     }
 }

@@ -1,14 +1,12 @@
 use std::net::TcpListener;
 
 use actix_web::{dev::Server, App, HttpServer};
-use utoipa::{OpenApi};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{models, routes::health_check, routes::subscribe};
 
-
-pub fn run(listener: TcpListener) -> Result<Server, std::io::Error>{
-
+pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
     #[derive(OpenApi)]
     #[openapi(
         paths(
@@ -27,11 +25,9 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error>{
     let openapi = ApiDoc::openapi();
 
     let server = HttpServer::new(move || {
-        App::new()
-            .service(health_check)
-            .service(subscribe)
-            .service(SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()))
-
+        App::new().service(health_check).service(subscribe).service(
+            SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
+        )
     })
     .listen(listener)?
     .run();

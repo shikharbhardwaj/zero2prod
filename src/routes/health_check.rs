@@ -1,6 +1,4 @@
-use actix_web::{get, Responder, HttpResponse};
-
-
+use actix_web::{get, HttpResponse, Responder};
 
 #[utoipa::path(
     responses(

@@ -1,7 +1,6 @@
-use actix_web::{post, web, Responder, HttpResponse};
+use actix_web::{post, web, HttpResponse, Responder};
 
 use crate::models::SubscribeRequest;
-
 
 #[utoipa::path(
     request_body(content=SubscribeRequest, description="Details for subscription", content_type="application/x-www-form-urlencoded"),
