@@ -1,6 +1,19 @@
 # The name of your workflow. GitHub displays the names of your workflows on your repository's "Actions" tab
 name: Rust
 
+# To automatically trigger the workflow
+on:
+  # NB: this differs from the book's project!
+  # These settings allow us to run this specific CI pipeline for PRs against
+  # this specific branch (a.k.a. book chapter).
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches:
+      - master
+
 env:
   CARGO_TERM_COLOR: always
   SQLX_VERSION: 0.6.2
