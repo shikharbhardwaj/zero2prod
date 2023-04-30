@@ -41,7 +41,7 @@ impl DatabaseSettings {
 #[derive(serde::Deserialize)]
 pub struct ApplicationSettings {
     pub host: String,
-    pub port: u16
+    pub port: u16,
 }
 
 impl ApplicationSettings {
@@ -51,8 +51,7 @@ impl ApplicationSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
-    let base_path = std::env::current_dir()
-        .expect("Failed to determine current directory");
+    let base_path = std::env::current_dir().expect("Failed to determine current directory");
     let configuration_directory = base_path.join("configuration");
 
     let environment: Environment = std::env::var("APP_ENVIRONMENT")
@@ -63,12 +62,12 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let environment_filename = format!("{}.toml", environment.as_str());
 
     let settings = config::Config::builder()
-        .add_source(
-            config::File::from(configuration_directory.join("base.toml"))
-        )
-        .add_source(
-            config::File::from(configuration_directory.join(environment_filename))
-        )
+        .add_source(config::File::from(
+            configuration_directory.join("base.toml"),
+        ))
+        .add_source(config::File::from(
+            configuration_directory.join(environment_filename),
+        ))
         .build()?;
 
     settings.try_deserialize::<Settings>()
@@ -77,7 +76,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
 /// The possible runtime environments.
 pub enum Environment {
     Local,
-    Production
+    Production,
 }
 
 impl Environment {
