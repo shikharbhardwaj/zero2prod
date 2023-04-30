@@ -29,8 +29,8 @@ async fn subscribe(
     connection: web::Data<PgPool>,
 ) -> impl Responder {
     match insert_subscriber(&form, &connection).await {
-        Ok(_) => HttpResponse::Created(),
-        Err(_) => HttpResponse::InternalServerError(),
+        Ok(_) => HttpResponse::Created().finish(),
+        Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
 
