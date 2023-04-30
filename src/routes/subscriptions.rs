@@ -1,4 +1,5 @@
 use chrono::Utc;
+use tracing::Instrument;
 use uuid::Uuid;
 
 use actix_web::{post, web, HttpResponse, Responder};
@@ -26,7 +27,11 @@ async fn subscribe(
         %request_id,
         subscriber_email = %form.email,
         subscriber_name = %form.name);
+
     let _request_span_guard = request_span.enter();
+
+    let query_span = tracing::info_span!("Saving new subscriber details in the database");
+
     match sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -38,6 +43,7 @@ async fn subscribe(
         Utc::now()
     )
     .execute(connection.get_ref())
+    .instrument(query_span)
     .await
     {
         Ok(_) => {
