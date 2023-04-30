@@ -28,10 +28,9 @@ async fn subscribe(
     web::Form(form): web::Form<SubscribeRequest>,
     connection: web::Data<PgPool>,
 ) -> impl Responder {
-    match insert_subscriber(&form, &connection).await
-    {
+    match insert_subscriber(&form, &connection).await {
         Ok(_) => HttpResponse::Created(),
-        Err(_) => HttpResponse::InternalServerError()
+        Err(_) => HttpResponse::InternalServerError(),
     }
 }
 
@@ -39,11 +38,7 @@ async fn subscribe(
     name = "Saving new subscriber details in the database.",
     skip(req, connection)
 )]
-async fn insert_subscriber(
-    req: &SubscribeRequest,
-    connection: &PgPool
-) -> Result<(), sqlx::Error> {
-
+async fn insert_subscriber(req: &SubscribeRequest, connection: &PgPool) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
