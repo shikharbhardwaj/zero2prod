@@ -1,5 +1,6 @@
 use std::net::TcpListener;
 
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 
 use zero2prod::{
@@ -21,7 +22,7 @@ async fn main() -> std::io::Result<()> {
     tracing::info!("Listening on: {}", &addr);
 
     let connection_string = configuration.database.connection_string();
-    let connection_pool = PgPool::connect(&connection_string)
+    let connection_pool = PgPool::connect(&connection_string.expose_secret())
         .await
         .expect("Failed to connect to Postgres.");
 
