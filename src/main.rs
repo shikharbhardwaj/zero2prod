@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     let subscriber = get_subscriber("zero2prod".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
-    tracing::info!("Starting application");
+    tracing::info!("Starting newsletter API");
 
     let configuration = get_configuration().expect("Failed to read configuration.");
     let addr = configuration.application.get_listen_addr();
