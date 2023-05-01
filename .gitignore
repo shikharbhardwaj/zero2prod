@@ -1,1 +1,5 @@
 /target
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
