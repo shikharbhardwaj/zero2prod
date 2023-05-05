@@ -22,11 +22,9 @@ async fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(&addr).expect("Failed to bind to a local port.");
     tracing::info!("Listening on: {}", &addr);
 
-    let connection_string = configuration.database.connection_string();
     let connection_pool = PgPoolOptions::new()
         .acquire_timeout(std::time::Duration::from_secs(2))
-        .connect_lazy(connection_string.expose_secret())
-        .expect("Failed to connect to Postgres.");
+        .connect_lazy_with(configuration.database.with_db());
 
     run(listener, connection_pool)?.await
 }
