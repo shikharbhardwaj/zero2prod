@@ -1,7 +1,6 @@
 use std::net::TcpListener;
 
 use once_cell::sync::Lazy;
-use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use zero2prod::{
@@ -109,10 +108,10 @@ async fn spawn_app() -> TestApp {
 
     let server =
         zero2prod::startup::run(listener, connection_pool.clone()).expect("Failed to run app.");
-    let _ = tokio::spawn(server);
+    tokio::spawn(server);
 
     TestApp {
-        url: format!("http://{}", addr.to_string()),
+        url: format!("http://{}", addr),
         db_pool: connection_pool,
     }
 }
