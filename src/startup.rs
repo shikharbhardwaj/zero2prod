@@ -6,7 +6,7 @@ use tracing_actix_web::TracingLogger;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{models, routes::health_check, routes::subscribe};
+use crate::{domain, routes::health_check, routes::subscribe};
 
 pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io::Error> {
     #[derive(OpenApi)]
@@ -16,8 +16,9 @@ pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io:
             crate::routes::subscribe
         ),
         components(
-            schemas(models::SubscriptionRequest),
-            schemas(models::SubscriberName),
+            schemas(domain::SubscriptionRequest),
+            schemas(domain::SubscriberName),
+            schemas(domain::SubscriberEmail),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")

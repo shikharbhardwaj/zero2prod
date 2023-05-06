@@ -1,9 +1,7 @@
+use unicode_segmentation::UnicodeSegmentation;
 use utoipa::ToSchema;
 
-use unicode_segmentation::UnicodeSegmentation;
-
-/// Human friendly name for a subscriber. Should not be empty or contain certain
-/// forbidden characters. Maximum allowed length of 256 chars.
+/// Subscriber name.
 #[derive(ToSchema, Clone, Debug)]
 pub struct SubscriberName(String);
 
@@ -30,19 +28,9 @@ impl AsRef<str> for SubscriberName {
     }
 }
 
-/// Subcription request from a user.
-#[derive(ToSchema, Clone, Debug)]
-pub(super) struct SubscriptionRequest {
-    #[schema(example = "John Doe")]
-    pub name: SubscriberName,
-
-    #[schema(example = "jonhdoe@example.com")]
-    pub email: String,
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::models::SubscriberName;
+    use crate::domain::SubscriberName;
     use claims::{assert_err, assert_ok};
 
     #[test]
