@@ -49,7 +49,7 @@ async fn subsribe_returns_ok_for_valid_form() {
 
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
     let response = client
-        .post(&format!("{}/subscribe", &test_app.url))
+        .post(&format!("{}/subscriptions", &test_app.url))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -78,7 +78,7 @@ async fn subsribe_returns_bad_request_for_missing_data() {
 
     for (invalid_body, error_message) in test_cases {
         let response = client
-            .post(&format!("{}/subscribe", test_app.url))
+            .post(&format!("{}/subscriptions", test_app.url))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(invalid_body)
             .send()

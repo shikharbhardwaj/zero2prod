@@ -15,7 +15,7 @@ use crate::models::SubscribeRequest;
     ),
     tag = "zero2prod"
 )]
-#[post("/subscribe")]
+#[post("/subscriptions")]
 #[tracing::instrument(
     name = "Adding a new subscriber",
     skip(form, connection),
