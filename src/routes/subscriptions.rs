@@ -12,6 +12,16 @@ pub struct FormData {
     name: String,
 }
 
+impl TryFrom<FormData> for SubscriptionRequest {
+    type Error = String;
+
+    fn try_from(value: FormData) -> Result<Self, Self::Error> {
+        let name = SubscriberName::parse(value.name)?;
+        let email = SubscriberEmail::parse(value.email)?;
+        Ok(Self { email, name })
+    }
+}
+
 #[utoipa::path(
     request_body(content=SubscriptionRequest, description="Details for subscription", content_type="application/x-www-form-urlencoded"),
     responses(
@@ -31,17 +41,10 @@ pub struct FormData {
     )
 )]
 async fn subscribe(form: web::Form<FormData>, connection: web::Data<PgPool>) -> impl Responder {
-    let name = match SubscriberName::parse(form.0.name) {
-        Ok(name) => name,
+    let subcription_request = match form.0.try_into() {
+        Ok(subscription_request) => subscription_request,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
-
-    let email = match SubscriberEmail::parse(form.0.email) {
-        Ok(email) => email,
-        Err(_) => return HttpResponse::BadRequest().finish(),
-    };
-
-    let subcription_request = SubscriptionRequest { email, name };
 
     match insert_subscriber(&subcription_request, &connection).await {
         Ok(_) => HttpResponse::Created().finish(),
