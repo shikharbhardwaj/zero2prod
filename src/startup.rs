@@ -16,7 +16,8 @@ pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io:
             crate::routes::subscribe
         ),
         components(
-            schemas(models::SubscribeRequest),
+            schemas(models::SubscriptionRequest),
+            schemas(models::SubscriberName),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")

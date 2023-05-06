@@ -4,10 +4,16 @@ use uuid::Uuid;
 use actix_web::{post, web, HttpResponse, Responder};
 use sqlx::PgPool;
 
-use crate::models::SubscribeRequest;
+use crate::models::{SubscriberName, SubscriptionRequest};
+
+#[derive(serde::Deserialize)]
+pub struct FormData {
+    email: String,
+    name: String,
+}
 
 #[utoipa::path(
-    request_body(content=SubscribeRequest, description="Details for subscription", content_type="application/x-www-form-urlencoded"),
+    request_body(content=SubscriptionRequest, description="Details for subscription", content_type="application/x-www-form-urlencoded"),
     responses(
         (status = 201, description = "Subscribed successfully"),
         (status = 400, description = "Bad request"),
@@ -24,11 +30,18 @@ use crate::models::SubscribeRequest;
         subscriber_name = %form.name
     )
 )]
-async fn subscribe(
-    web::Form(form): web::Form<SubscribeRequest>,
-    connection: web::Data<PgPool>,
-) -> impl Responder {
-    match insert_subscriber(&form, &connection).await {
+async fn subscribe(form: web::Form<FormData>, connection: web::Data<PgPool>) -> impl Responder {
+    let name = match SubscriberName::parse(form.0.name) {
+        Ok(name) => name,
+        Err(_) => return HttpResponse::BadRequest().finish(),
+    };
+
+    let subcription_request = SubscriptionRequest {
+        email: form.0.email,
+        name,
+    };
+
+    match insert_subscriber(&subcription_request, &connection).await {
         Ok(_) => HttpResponse::Created().finish(),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
@@ -38,7 +51,10 @@ async fn subscribe(
     name = "Saving new subscriber details in the database.",
     skip(req, connection)
 )]
-async fn insert_subscriber(req: &SubscribeRequest, connection: &PgPool) -> Result<(), sqlx::Error> {
+async fn insert_subscriber(
+    req: &SubscriptionRequest,
+    connection: &PgPool,
+) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)
@@ -46,7 +62,7 @@ async fn insert_subscriber(req: &SubscribeRequest, connection: &PgPool) -> Resul
         "#,
         Uuid::new_v4(),
         req.email,
-        req.name,
+        req.name.as_ref(),
         Utc::now()
     )
     .execute(connection)
