@@ -6,9 +6,13 @@ use tracing_actix_web::TracingLogger;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{domain, routes::health_check, routes::subscribe};
+use crate::{domain, email_client::EmailClient, routes::health_check, routes::subscribe};
 
-pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io::Error> {
+pub fn run(
+    listener: TcpListener,
+    connection: PgPool,
+    email_client: EmailClient,
+) -> Result<Server, std::io::Error> {
     #[derive(OpenApi)]
     #[openapi(
         paths(
@@ -39,6 +43,7 @@ pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io:
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
             .app_data(connection.clone())
+            .app_data(email_client.clone())
     })
     .listen(listener)?
     .run();
