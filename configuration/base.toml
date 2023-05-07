@@ -12,3 +12,4 @@ port = 8000
 base_url = "localhost"
 sender_email = "test@gmail.com"
 authorization_token = "my-secret-token"
+timeout_milliseconds = 10000
