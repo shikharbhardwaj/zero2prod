@@ -11,7 +11,7 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::subscribe,
+    routes::{confirm, subscribe},
 };
 
 pub struct Application {
@@ -65,7 +65,8 @@ pub fn run(
     #[openapi(
         paths(
             crate::routes::health_check,
-            crate::routes::subscribe
+            crate::routes::subscribe,
+            crate::routes::confirm,
         ),
         components(
             schemas(domain::SubscriptionRequest),
@@ -88,6 +89,7 @@ pub fn run(
             .wrap(TracingLogger::default())
             .service(health_check)
             .service(subscribe)
+            .service(confirm)
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
