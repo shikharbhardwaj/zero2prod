@@ -7,6 +7,7 @@ use sqlx::PgPool;
 use crate::{
     domain::{SubscriberEmail, SubscriberName, SubscriptionRequest},
     email_client::EmailClient,
+    startup::ApplicationBaseUrl,
 };
 
 #[derive(serde::Deserialize)]
@@ -37,7 +38,7 @@ impl TryFrom<FormData> for SubscriptionRequest {
 #[post("/subscriptions")]
 #[tracing::instrument(
     name = "Adding a new subscriber",
-    skip(form, connection, email_client),
+    skip(form, connection, email_client, base_url),
     fields(
         subscriber_email = %form.email,
         subscriber_name = %form.name
@@ -47,6 +48,7 @@ async fn subscribe(
     form: web::Form<FormData>,
     connection: web::Data<PgPool>,
     email_client: web::Data<EmailClient>,
+    base_url: web::Data<ApplicationBaseUrl>,
 ) -> impl Responder {
     let subcription_request = match form.0.try_into() {
         Ok(subscription_request) => subscription_request,
@@ -61,7 +63,7 @@ async fn subscribe(
         return HttpResponse::InternalServerError().finish();
     }
 
-    if send_confirmation_email(&email_client, subcription_request)
+    if send_confirmation_email(&email_client, subcription_request, &base_url.0)
         .await
         .is_err()
     {
@@ -107,8 +109,9 @@ async fn insert_subscriber(
 async fn send_confirmation_email(
     email_client: &EmailClient,
     new_subscriber: SubscriptionRequest,
+    base_url: &str,
 ) -> Result<(), reqwest::Error> {
-    let confirmation_link = "https://some-non-existent-domain.com/subscriptions/confirm";
+    let confirmation_link = format!("{}/subscriptions/confirm?subscription_token=test", base_url);
 
     let html_body = &format!(
         "Welcome to our newsletter! <br />\

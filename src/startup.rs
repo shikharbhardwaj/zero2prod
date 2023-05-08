@@ -42,7 +42,12 @@ impl Application {
         let listener = TcpListener::bind(addr).expect("Failed to bind to a local port.");
 
         let port = listener.local_addr().unwrap().port();
-        let server = run(listener, connection_pool, email_client)?;
+        let server = run(
+            listener,
+            connection_pool,
+            email_client,
+            configuration.application.base_url,
+        )?;
 
         Ok(Self { port, server })
     }
@@ -56,10 +61,13 @@ impl Application {
     }
 }
 
+pub struct ApplicationBaseUrl(pub String);
+
 pub fn run(
     listener: TcpListener,
     connection: PgPool,
     email_client: EmailClient,
+    base_url: String,
 ) -> Result<Server, std::io::Error> {
     #[derive(OpenApi)]
     #[openapi(
@@ -83,6 +91,7 @@ pub fn run(
 
     let connection = web::Data::new(connection);
     let email_client = web::Data::new(email_client);
+    let base_url = web::Data::new(ApplicationBaseUrl(base_url));
 
     let server = HttpServer::new(move || {
         App::new()
@@ -95,6 +104,7 @@ pub fn run(
             )
             .app_data(connection.clone())
             .app_data(email_client.clone())
+            .app_data(base_url.clone())
     })
     .listen(listener)?
     .run();

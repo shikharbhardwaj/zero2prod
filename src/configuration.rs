@@ -42,10 +42,11 @@ pub struct ApplicationSettings {
     pub host: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
+    pub base_url: String,
 }
 
 impl ApplicationSettings {
-    pub fn get_listen_addr(self) -> String {
+    pub fn get_listen_addr(&self) -> String {
         format!("{}:{}", self.host, self.port)
     }
 }

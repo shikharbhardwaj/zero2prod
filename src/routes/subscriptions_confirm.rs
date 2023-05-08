@@ -1,10 +1,10 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{put, web, HttpResponse, Responder};
 use sqlx::PgPool;
 use utoipa::IntoParams;
 
 #[derive(serde::Deserialize, IntoParams)]
 pub struct Parameters {
-    _subscription_token: String,
+    subscription_token: String,
 }
 
 #[utoipa::path(
@@ -16,14 +16,15 @@ pub struct Parameters {
     params(Parameters),
     tag = "zero2prod"
 )]
-#[post("/subscriptions/confirm")]
+#[put("/subscriptions/confirm")]
 #[tracing::instrument(
     name = "Confirming a pending subscription",
-    skip(_parameters, _connection)
+    skip(parameters, _connection)
 )]
 async fn confirm(
-    _parameters: web::Query<Parameters>,
+    parameters: web::Query<Parameters>,
     _connection: web::Data<PgPool>,
 ) -> impl Responder {
+    log::info!("Got request for token: {}", parameters.0.subscription_token);
     HttpResponse::Ok().finish()
 }
