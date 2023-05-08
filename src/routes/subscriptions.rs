@@ -4,7 +4,10 @@ use uuid::Uuid;
 use actix_web::{post, web, HttpResponse, Responder};
 use sqlx::PgPool;
 
-use crate::domain::{SubscriberEmail, SubscriberName, SubscriptionRequest};
+use crate::{
+    domain::{SubscriberEmail, SubscriberName, SubscriptionRequest},
+    email_client::EmailClient,
+};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -34,22 +37,39 @@ impl TryFrom<FormData> for SubscriptionRequest {
 #[post("/subscriptions")]
 #[tracing::instrument(
     name = "Adding a new subscriber",
-    skip(form, connection),
+    skip(form, connection, email_client),
     fields(
         subscriber_email = %form.email,
         subscriber_name = %form.name
     )
 )]
-async fn subscribe(form: web::Form<FormData>, connection: web::Data<PgPool>) -> impl Responder {
+async fn subscribe(
+    form: web::Form<FormData>,
+    connection: web::Data<PgPool>,
+    email_client: web::Data<EmailClient>,
+) -> impl Responder {
     let subcription_request = match form.0.try_into() {
         Ok(subscription_request) => subscription_request,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
 
-    match insert_subscriber(&subcription_request, &connection).await {
-        Ok(_) => HttpResponse::Created().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+    if insert_subscriber(&subcription_request, &connection)
+        .await
+        .is_err()
+    {
+        log::error!("Could not save subcriber data in database.");
+        return HttpResponse::InternalServerError().finish();
     }
+
+    if send_confirmation_email(&email_client, subcription_request)
+        .await
+        .is_err()
+    {
+        log::error!("Could not send confirmation email.");
+        return HttpResponse::InternalServerError().finish();
+    }
+
+    HttpResponse::Created().finish()
 }
 
 #[tracing::instrument(
@@ -78,4 +98,30 @@ async fn insert_subscriber(
     })?;
 
     Ok(())
+}
+
+#[tracing::instrument(
+    name = "Send a confirmation email to a new subscriber",
+    skip(email_client, new_subscriber)
+)]
+async fn send_confirmation_email(
+    email_client: &EmailClient,
+    new_subscriber: SubscriptionRequest,
+) -> Result<(), reqwest::Error> {
+    let confirmation_link = "https://some-non-existent-domain.com/subscriptions/confirm";
+
+    let html_body = &format!(
+        "Welcome to our newsletter! <br />\
+                Click <a href=\"{}\">here</a> to confirm your subscriptions.",
+        confirmation_link
+    );
+
+    let plain_body = &format!(
+        "Welcome to our newsletter!\nVisit {} to confirm your subscription.",
+        confirmation_link
+    );
+
+    email_client
+        .send_mail(new_subscriber.email, "Welcome!", html_body, plain_body)
+        .await
 }

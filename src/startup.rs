@@ -81,6 +81,7 @@ pub fn run(
     let openapi = ApiDoc::openapi();
 
     let connection = web::Data::new(connection);
+    let email_client = web::Data::new(email_client);
 
     let server = HttpServer::new(move || {
         App::new()

@@ -29,7 +29,7 @@ impl EmailClient {
     }
 
     pub async fn send_mail(
-        self,
+        &self,
         recipient: SubscriberEmail,
         subject: &str,
         html_content: &str,
