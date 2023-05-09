@@ -24,5 +24,8 @@ then
     exit 1
 fi
 
+cargo sqlx prepare -- --lib
+git add sqlx-data.json
+
 # If there are whitespace errors, print the offending file names and fail.
 exec git diff-index --check --cached "$against" --
