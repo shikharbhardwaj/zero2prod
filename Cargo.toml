@@ -33,6 +33,7 @@ serde-aux = "4"
 unicode-segmentation = "1"
 validator = "0.16"
 rand = { version = "0.8", features=["std_rng"] }
+thiserror = "1"
 
 # On Linux:
 # - Ubuntu, `sudo apt-get install lld clang`
