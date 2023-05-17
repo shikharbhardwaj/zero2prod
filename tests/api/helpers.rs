@@ -39,9 +39,9 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn put_confirm_subscription(&self, query: String) -> reqwest::Response {
+    pub async fn confirm_subscription(&self, query: String) -> reqwest::Response {
         reqwest::Client::new()
-            .put(&format!("{}/subscriptions/confirm?{}", self.url, query))
+            .get(&format!("{}/subscriptions/confirm?{}", self.url, query))
             .send()
             .await
             .expect("Failed to execute request")

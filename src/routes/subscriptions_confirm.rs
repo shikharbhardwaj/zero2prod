@@ -1,4 +1,4 @@
-use actix_web::{put, web, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse, Responder};
 use sqlx::PgPool;
 use utoipa::IntoParams;
 use uuid::Uuid;
@@ -17,7 +17,7 @@ pub struct Parameters {
     params(Parameters),
     tag = "zero2prod"
 )]
-#[put("/subscriptions/confirm")]
+#[get("/subscriptions/confirm")]
 #[tracing::instrument(name = "Confirming a pending subscription", skip(parameters, pool))]
 async fn confirm(parameters: web::Query<Parameters>, pool: web::Data<PgPool>) -> impl Responder {
     let id = match get_subscriber_id_from_token(&pool, &parameters.subscription_token).await {

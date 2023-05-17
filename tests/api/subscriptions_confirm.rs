@@ -7,7 +7,7 @@ use crate::helpers::spawn_app;
 async fn confirmations_without_token_are_rejected_with_400() {
     let app = spawn_app().await;
 
-    let response = app.put_confirm_subscription("".into()).await;
+    let response = app.confirm_subscription("".into()).await;
 
     assert_eq!(response.status().as_u16(), 400);
 }
@@ -29,7 +29,7 @@ async fn the_link_returned_by_subscribe_returns_a_200_if_called() {
 
     // Act
     let response = reqwest::Client::new()
-        .put(confirmation_links.html)
+        .get(confirmation_links.html)
         .send()
         .await
         .expect("Failed to send request to confirmation link.");
@@ -55,7 +55,7 @@ async fn clicking_on_confirmation_link_confirms_a_subscriber() {
 
     // Act
     reqwest::Client::new()
-        .put(confirmation_links.html)
+        .get(confirmation_links.html)
         .send()
         .await
         .expect("Failed to send request to confirmation link.");

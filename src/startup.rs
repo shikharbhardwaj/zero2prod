@@ -11,7 +11,7 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::{confirm, subscribe},
+    routes::{confirm, subscribe, publish_newsletter},
 };
 
 pub struct Application {
@@ -75,11 +75,13 @@ pub fn run(
             crate::routes::health_check,
             crate::routes::subscribe,
             crate::routes::confirm,
+            crate::routes::publish_newsletter,
         ),
         components(
             schemas(domain::SubscriptionRequest),
             schemas(domain::SubscriberName),
             schemas(domain::SubscriberEmail),
+            schemas(crate::routes::NewsletterRequest),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")
@@ -99,6 +101,7 @@ pub fn run(
             .service(health_check)
             .service(subscribe)
             .service(confirm)
+            .service(publish_newsletter)
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
