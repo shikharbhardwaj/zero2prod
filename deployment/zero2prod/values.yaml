@@ -90,6 +90,7 @@ global:
     auth:
       postgresPassword: ""
       database: newsletter
+    primary.podSecurityContext.enabled: false
 
 zero2prod:
   postgresHost: zero2prod-postgresql
