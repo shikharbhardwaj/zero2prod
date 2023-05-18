@@ -30,7 +30,7 @@ impl EmailClient {
 
     pub async fn send_mail(
         &self,
-        recipient: SubscriberEmail,
+        recipient: &SubscriberEmail,
         subject: &str,
         html_content: &str,
         text_content: &str,
@@ -105,7 +105,7 @@ mod tests {
 
         assert_ok!(
             email_client
-                .send_mail(email(), &subject(), &content(), &content())
+                .send_mail(&email(), &subject(), &content(), &content())
                 .await
         );
     }
@@ -123,7 +123,7 @@ mod tests {
 
         assert_err!(
             email_client
-                .send_mail(email(), &subject(), &content(), &content())
+                .send_mail(&email(), &subject(), &content(), &content())
                 .await
         );
     }
@@ -147,7 +147,7 @@ mod tests {
 
         assert_err!(
             email_client
-                .send_mail(subscriber_email, &subject, &content, &content)
+                .send_mail(&subscriber_email, &subject, &content, &content)
                 .await
         );
     }
