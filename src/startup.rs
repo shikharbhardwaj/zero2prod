@@ -11,7 +11,7 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::{confirm, subscribe, publish_newsletter},
+    routes::{confirm, publish_newsletter, subscribe},
 };
 
 pub struct Application {
@@ -81,7 +81,7 @@ pub fn run(
             schemas(domain::SubscriptionRequest),
             schemas(domain::SubscriberName),
             schemas(domain::SubscriberEmail),
-            schemas(crate::routes::NewsletterRequest),
+            schemas(crate::routes::NewsletterRequestBody),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")
