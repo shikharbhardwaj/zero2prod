@@ -3,7 +3,10 @@ use std::net::TcpListener;
 use actix_web::{dev::Server, web, App, HttpServer};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tracing_actix_web::TracingLogger;
-use utoipa::{OpenApi, openapi::security::{SecurityScheme, Http, HttpAuthScheme}, Modify};
+use utoipa::{
+    openapi::security::{Http, HttpAuthScheme, SecurityScheme},
+    Modify, OpenApi,
+};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
@@ -97,8 +100,10 @@ pub fn run(
         fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
             let components = openapi.components.as_mut().unwrap();
 
-            components.add_security_scheme("http_basic",
-            SecurityScheme::Http(Http::new(HttpAuthScheme::Basic)));
+            components.add_security_scheme(
+                "http_basic",
+                SecurityScheme::Http(Http::new(HttpAuthScheme::Basic)),
+            );
         }
     }
 

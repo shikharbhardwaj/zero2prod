@@ -102,10 +102,22 @@ async fn newsletter_request_without_auth_gets_rejected() {
         "title": "Some title"
     });
 
-    let response = app.post_newsletters(body).await;
+    let response = reqwest::Client::new()
+        .post(&format!("{}/newsletters", app.url))
+        .json(&body)
+        .send()
+        .await
+        .expect("Failed to execute request.");
 
-    assert_eq!(401, response.status().as_u16(), "The API did not return 401 unauthorized when no authorization information was provided.");
-    assert_eq!(r#"Basic realm="publish""#, response.headers()["WWW-Authenticate"]);
+    assert_eq!(
+        401,
+        response.status().as_u16(),
+        "The API did not return 401 unauthorized when no authorization information was provided."
+    );
+    assert_eq!(
+        r#"Basic realm="publish""#,
+        response.headers()["WWW-Authenticate"]
+    );
 }
 
 async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {
