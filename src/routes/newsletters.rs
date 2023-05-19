@@ -11,14 +11,14 @@ pub struct NewsletterRequestBody {
     content: Content,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, ToSchema)]
 pub struct Content {
     text: String,
     html: String,
 }
 
 #[utoipa::path(
-    request_body(content=NewsletterRequest, description="Details required to send the newsletter issue", content_type="application/json"),
+    request_body(content=NewsletterRequestBody, description="Details required to send the newsletter issue", content_type="application/json"),
     responses(
         (status = 200, description = "Emails sent"),
         (status = 400, description = "Bad request"),
@@ -28,7 +28,7 @@ pub struct Content {
 )]
 #[post("/newsletters")]
 #[tracing::instrument(
-    name = "Confirming a pending subscription",
+    name = "Sending newsletters",
     skip(body, pool, email_client)
 )]
 pub async fn publish_newsletter(
@@ -67,6 +67,7 @@ struct ConfirmedSubscriber {
     email: SubscriberEmail,
 }
 
+#[tracing::instrument(name = "Get confirmed subscribers from DB", skip(pool))]
 async fn get_confirmed_subscribers(
     pool: &PgPool,
 ) -> Result<Vec<Result<ConfirmedSubscriber, anyhow::Error>>, anyhow::Error> {

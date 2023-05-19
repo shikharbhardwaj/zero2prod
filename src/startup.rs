@@ -82,6 +82,7 @@ pub fn run(
             schemas(domain::SubscriberName),
             schemas(domain::SubscriberEmail),
             schemas(crate::routes::NewsletterRequestBody),
+            schemas(crate::routes::Content),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")
