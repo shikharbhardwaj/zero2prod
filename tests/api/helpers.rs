@@ -1,3 +1,4 @@
+use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
@@ -26,6 +27,7 @@ pub struct TestApp {
     pub db_pool: PgPool,
     pub email_server: MockServer,
     pub port: u16,
+    pub user: TestUser,
 }
 
 impl TestApp {
@@ -69,23 +71,46 @@ impl TestApp {
     }
 
     pub async fn post_newsletters(&self, body: serde_json::Value) -> reqwest::Response {
-        let (test_username, test_password) = self.test_user().await;
-
         reqwest::Client::new()
             .post(&format!("{}/newsletters", self.url))
             .json(&body)
-            .basic_auth(test_username, Some(test_password))
+            .basic_auth(&self.user.username, Some(&self.user.password))
             .send()
             .await
             .expect("Failed to execute request.")
     }
+}
 
-    pub async fn test_user(&self) -> (String, String) {
-        let row = sqlx::query!("SELECT username, password FROM users LIMIT 1")
-            .fetch_one(&self.db_pool)
-            .await
-            .expect("Failed to fetch test user.");
-        (row.username, row.password)
+pub struct TestUser {
+    username: String,
+    password: String,
+}
+
+impl TestUser {
+    fn new() -> Self {
+        Self {
+            username: Uuid::new_v4().to_string(),
+            password: Uuid::new_v4().to_string(),
+        }
+    }
+
+    async fn store(&self, pool: &PgPool) {
+        let salt = SaltString::generate(&mut rand::thread_rng());
+        let password_hash = Argon2::default()
+            .hash_password(self.password.as_bytes(), &salt)
+            .unwrap()
+            .to_string();
+
+        sqlx::query!(
+            "INSERT INTO users (user_id, username, password)
+            VALUES ($1, $2, $3)",
+            Uuid::new_v4(),
+            self.username,
+            password_hash,
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to create test users");
     }
 }
 
@@ -119,14 +144,18 @@ pub async fn spawn_app() -> TestApp {
     let port = application.port();
     tokio::spawn(application.run_until_stopped());
 
+    let db_pool = get_connection_pool(&configuration.database);
+    let test_user = TestUser::new();
+    test_user.store(&db_pool).await;
+
     let test_app = TestApp {
         url,
-        db_pool: get_connection_pool(&configuration.database),
+        db_pool: db_pool,
         email_server,
         port,
+        user: test_user,
     };
 
-    add_test_user(&test_app.db_pool).await;
     test_app
 }
 
@@ -151,17 +180,4 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .expect("Failed to migrate the database");
 
     connection_pool
-}
-
-async fn add_test_user(pool: &PgPool) {
-    sqlx::query!(
-        "INSERT INTO users (user_id, username, password)
-        VALUES ($1, $2, $3)",
-        Uuid::new_v4(),
-        Uuid::new_v4().to_string(),
-        Uuid::new_v4().to_string(),
-    )
-    .execute(pool)
-    .await
-    .expect("Failed to create test users");
 }
