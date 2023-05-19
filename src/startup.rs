@@ -3,7 +3,7 @@ use std::net::TcpListener;
 use actix_web::{dev::Server, web, App, HttpServer};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tracing_actix_web::TracingLogger;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, openapi::security::{SecurityScheme, Http, HttpAuthScheme}, Modify};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
@@ -86,9 +86,21 @@ pub fn run(
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")
-        )
+        ),
+        modifiers(&SecurityAddon)
     )]
     struct ApiDoc;
+
+    struct SecurityAddon;
+
+    impl Modify for SecurityAddon {
+        fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+            let components = openapi.components.as_mut().unwrap();
+
+            components.add_security_scheme("http_basic",
+            SecurityScheme::Http(Http::new(HttpAuthScheme::Basic)));
+        }
+    }
 
     let openapi = ApiDoc::openapi();
 

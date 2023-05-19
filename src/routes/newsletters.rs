@@ -24,7 +24,10 @@ pub struct Content {
         (status = 400, description = "Bad request"),
         (status = 500, description = "Server error"),
     ),
-    tag = "zero2prod"
+    tag = "zero2prod",
+    security(
+        ("http_basic" = [])
+    )
 )]
 #[post("/newsletters")]
 #[tracing::instrument(

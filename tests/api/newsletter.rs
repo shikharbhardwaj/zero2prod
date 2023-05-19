@@ -90,6 +90,24 @@ async fn newsletter_returns_400_for_invalid_data() {
     }
 }
 
+#[tokio::test]
+async fn newsletter_request_without_auth_gets_rejected() {
+    let app = spawn_app().await;
+
+    let body = serde_json::json!({
+        "content": {
+            "text": "Some text",
+            "html": "Some html",
+        },
+        "title": "Some title"
+    });
+
+    let response = app.post_newsletters(body).await;
+
+    assert_eq!(401, response.status().as_u16(), "The API did not return 401 unauthorized when no authorization information was provided.");
+    assert_eq!(r#"Basic realm="publish""#, response.headers()["WWW-Authenticate"]);
+}
+
 async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
 
