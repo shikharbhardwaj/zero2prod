@@ -4,6 +4,13 @@ My attempt at following the book [Zero To Production In Rust](https://www.zero2p
 
 # Dev setup
 
+ - Install pre-commit hooks
+
+    ```
+    pip install pre-commit
+    pre-commit install
+    ```
+
  - Dev cycle (lint, test and run)
 
     ```
