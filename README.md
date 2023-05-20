@@ -12,10 +12,9 @@ My attempt at following the book [Zero To Production In Rust](https://www.zero2p
 
     # Start watch to hot
     cargo watch -x check -x test -x run | bunyan
-    ``` 
+    ```
 
 ## Deployment
 
  - CI configured via GitHub actions.
  - CD configured using Argo CD pointing to a K8s cluster.
-
