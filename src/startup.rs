@@ -1,5 +1,6 @@
 use std::net::TcpListener;
 
+use actix_files as fs;
 use actix_web::{dev::Server, web, App, HttpServer};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tracing_actix_web::TracingLogger;
@@ -14,7 +15,7 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::{confirm, publish_newsletter, subscribe},
+    routes::{confirm, home, publish_newsletter, subscribe},
 };
 
 pub struct Application {
@@ -120,6 +121,9 @@ pub fn run(
             .service(subscribe)
             .service(confirm)
             .service(publish_newsletter)
+            .service(home)
+            .service(fs::Files::new("/assets", "./static/assets"))
+            .service(fs::Files::new("/images", "./static/images"))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )

@@ -37,6 +37,7 @@ thiserror = "1"
 anyhow = "1"
 base64 = "0.21"
 argon2 = { version = "0.4", features = ["std"] }
+actix-files = "0.6.2"
 
 # On Linux:
 # - Ubuntu, `sudo apt-get install lld clang`
