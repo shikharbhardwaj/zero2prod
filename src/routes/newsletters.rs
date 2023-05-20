@@ -1,4 +1,7 @@
-use crate::{domain::SubscriberEmail, email_client::EmailClient, routes::error_chain_fmt, telemetry::spawn_blocking_with_tracing};
+use crate::{
+    domain::SubscriberEmail, email_client::EmailClient, routes::error_chain_fmt,
+    telemetry::spawn_blocking_with_tracing,
+};
 use actix_web::{
     http::header::{self, HeaderMap},
     post, web, HttpRequest, HttpResponse, ResponseError,
