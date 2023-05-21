@@ -15,7 +15,7 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::{confirm, home, publish_newsletter, subscribe},
+    routes::{confirm, home, login, login_form, publish_newsletter, subscribe},
 };
 
 pub struct Application {
@@ -122,6 +122,8 @@ pub fn run(
             .service(confirm)
             .service(publish_newsletter)
             .service(home)
+            .service(login)
+            .service(login_form)
             .service(fs::Files::new("/assets", "./static/assets"))
             .service(fs::Files::new("/images", "./static/images"))
             .service(
