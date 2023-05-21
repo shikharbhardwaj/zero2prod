@@ -1,6 +1,7 @@
 use actix_session::Session;
 use actix_web::{get, http::header::ContentType, web, HttpResponse};
 use anyhow::Context;
+use reqwest::header::LOCATION;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -18,7 +19,9 @@ pub async fn admin_dashboard(
             actix_web::error::ErrorInternalServerError(anyhow::anyhow!("Failed to get user name"))
         })?
     } else {
-        todo!()
+        return Ok(HttpResponse::SeeOther()
+            .insert_header((LOCATION, "/login"))
+            .finish());
     };
 
     Ok(HttpResponse::Ok()
