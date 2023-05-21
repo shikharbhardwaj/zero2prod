@@ -103,11 +103,22 @@ impl TestApp {
             .await
             .unwrap()
     }
+
+    pub async fn get_admin_dashboard(&self) -> String {
+        self.api_client
+            .get(format!("{}/admin/dashboard", self.url))
+            .send()
+            .await
+            .expect("Failed to send request.")
+            .text()
+            .await
+            .unwrap()
+    }
 }
 
 pub struct TestUser {
-    username: String,
-    password: String,
+    pub username: String,
+    pub password: String,
 }
 
 impl TestUser {
