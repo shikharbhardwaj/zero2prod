@@ -96,6 +96,14 @@ postgresql:
     podSecurityContext:
       enabled: false
 
+redis:
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+
 zero2prod:
   postgresHost: zero2prod-postgresql
   postgresUsername: postgres
