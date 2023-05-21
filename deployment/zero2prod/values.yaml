@@ -99,3 +99,4 @@ postgresql:
 zero2prod:
   postgresHost: zero2prod-postgresql
   postgresUsername: postgres
+  hmacSecret: hmac-secret
