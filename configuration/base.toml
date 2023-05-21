@@ -7,7 +7,7 @@ port = 5432
 
 [application]
 port = 8000
-hmac_secret = "hmac-secret-token"
+hmac_secret = "hmac-secret-token-that-needs-to-be-reset-for-prod-and-needs-to-be-longer-than-64-chars"
 
 [email_client]
 base_url = "localhost"
