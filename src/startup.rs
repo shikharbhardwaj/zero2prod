@@ -93,6 +93,7 @@ async fn run(
             crate::routes::subscribe,
             crate::routes::confirm,
             crate::routes::publish_newsletter,
+            crate::routes::login
         ),
         components(
             schemas(domain::SubscriptionRequest),
@@ -100,6 +101,7 @@ async fn run(
             schemas(domain::SubscriberEmail),
             schemas(crate::routes::NewsletterRequestBody),
             schemas(crate::routes::Content),
+            schemas(crate::routes::LoginFormData),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")

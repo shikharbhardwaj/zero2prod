@@ -12,13 +12,15 @@ use crate::routes::error_chain_fmt;
 #[derive(serde::Deserialize, ToSchema)]
 pub struct LoginFormData {
     username: String,
+
+    #[schema(value_type = String)]
     password: Secret<String>,
 }
 
 #[utoipa::path(
     request_body(content=LoginFormData, description="Login", content_type="application/x-www-form-urlencoded"),
     responses(
-        (status = 201, description = "Subscribed successfully"),
+        (status = 303, description = "Login redirect"),
         (status = 401, description = "Unauthorized"),
         (status = 400, description = "Bad request"),
         (status = 500, description = "Server error"),
