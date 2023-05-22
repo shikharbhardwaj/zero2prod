@@ -13,9 +13,18 @@ pub async fn login_form(flash_messages: IncomingFlashMessages) -> HttpResponse {
         writeln!(error, "{}", m.content()).unwrap();
     }
 
-    let html = LoginTemplate { error: &error }
-        .render()
-        .expect("Could not render login template.");
+    let mut info = String::new();
+
+    for m in flash_messages.iter().filter(|m| m.level() == Level::Info) {
+        writeln!(info, "{}", m.content()).unwrap();
+    }
+
+    let html = LoginTemplate {
+        error: &error,
+        info: &info,
+    }
+    .render()
+    .expect("Could not render login template.");
 
     HttpResponse::Ok()
         .content_type(ContentType::html())

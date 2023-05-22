@@ -4,6 +4,7 @@ use askama::Template;
 #[template(path = "login.html")]
 pub struct LoginTemplate<'a> {
     pub error: &'a str,
+    pub info: &'a str,
 }
 
 #[derive(Template)]

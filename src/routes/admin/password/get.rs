@@ -1,5 +1,7 @@
 use actix_web::{get, http::header::ContentType, HttpResponse};
+use actix_web_flash_messages::{IncomingFlashMessages, Level};
 use askama::Template;
+use std::fmt::Write;
 
 use crate::{
     session_state::TypedSession,
@@ -8,12 +10,21 @@ use crate::{
 };
 
 #[get("/admin/password")]
-pub async fn change_password_form(session: TypedSession) -> Result<HttpResponse, actix_web::Error> {
+pub async fn change_password_form(
+    session: TypedSession,
+    flash_messages: IncomingFlashMessages,
+) -> Result<HttpResponse, actix_web::Error> {
     if session.get_user_id().map_err(e500)?.is_none() {
         return Ok(see_other("/login"));
     }
 
-    let html = ChangePasswordTemplate { error: "" }
+    let mut error = String::new();
+
+    for m in flash_messages.iter().filter(|m| m.level() == Level::Error) {
+        writeln!(error, "{}", m.content()).unwrap();
+    }
+
+    let html = ChangePasswordTemplate { error: &error }
         .render()
         .expect("Could not render admin dashboard template.");
 

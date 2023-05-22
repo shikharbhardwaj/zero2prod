@@ -24,8 +24,8 @@ use crate::{
     email_client::EmailClient,
     routes::health_check,
     routes::{
-        admin_dashboard, change_password, change_password_form, confirm, home, login, login_form,
-        publish_newsletter, subscribe,
+        admin_dashboard, change_password, change_password_form, confirm, home, log_out, login,
+        login_form, publish_newsletter, subscribe,
     },
 };
 
@@ -157,6 +157,7 @@ async fn run(
             .service(admin_dashboard)
             .service(change_password_form)
             .service(change_password)
+            .service(log_out)
             .service(fs::Files::new("/assets", "./static/assets"))
             .service(fs::Files::new("/images", "./static/images"))
             .service(

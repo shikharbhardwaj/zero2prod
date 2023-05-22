@@ -31,6 +31,11 @@
                                     <i style="color: #FC440F">{{ error }}</i>
                                 </blockquote>
                             {% endif -%}
+                            {% if info != "" -%}
+                                <blockquote>
+                                    <i>{{ info }}</i>
+                                </blockquote>
+                            {% endif -%}
                         </seection>
                         <section>
                             <form action="/login" method="post">

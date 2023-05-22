@@ -22,7 +22,11 @@
 						<div class="inner">
 							<h1>Welcome {{ username }}!</h1>
 							<ul class="actions vertical">
-								<li><a href="/logout" class="button">Logout</a></li>
+								<li>
+									<form name="logoutForm" action="/admin/logout" method="post">
+										<input type="submit" value="Logout" class="button">
+									</form>
+								</li>
 								<li><a href="/admin/password" class="button">Reset password</a></li>
 							</ul>
 						</div>
