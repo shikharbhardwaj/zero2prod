@@ -1,43 +1,35 @@
 use actix_session::Session;
 use actix_web::{get, http::header::ContentType, web, HttpResponse};
 use anyhow::Context;
-use reqwest::header::LOCATION;
+use askama::Template;
 use sqlx::PgPool;
 use uuid::Uuid;
+
+use crate::{
+    templates::AdminDashboardTemplate,
+    utils::{e500, see_other},
+};
 
 #[get("/admin/dashboard")]
 pub async fn admin_dashboard(
     session: Session,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let username = if let Some(user_id) = session.get::<Uuid>("user_id").map_err(|_| {
-        actix_web::error::ErrorInternalServerError(anyhow::anyhow!(
-            "Failed to get user id from session"
-        ))
-    })? {
-        get_username(user_id, &pool).await.map_err(|_| {
-            actix_web::error::ErrorInternalServerError(anyhow::anyhow!("Failed to get user name"))
-        })?
+    let username = if let Some(user_id) = session.get::<Uuid>("user_id").map_err(e500)? {
+        get_username(user_id, &pool).await.map_err(e500)?
     } else {
-        return Ok(HttpResponse::SeeOther()
-            .insert_header((LOCATION, "/login"))
-            .finish());
+        return Ok(see_other("/login"));
     };
+
+    let html = AdminDashboardTemplate {
+        username: &username,
+    }
+    .render()
+    .expect("Could not render admin dashboard template.");
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::html())
-        .body(format!(
-            r#"<!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-                    <title>Admin dashboard</title>
-                </head>
-                <body>
-                    <p>Welcome {username}!</p>
-                </body>
-            </html>"#
-        )))
+        .body(html))
 }
 
 #[tracing::instrument(name = "Get username", skip(pool))]

@@ -23,7 +23,10 @@ use crate::{
     domain,
     email_client::EmailClient,
     routes::health_check,
-    routes::{admin_dashboard, confirm, home, login, login_form, publish_newsletter, subscribe},
+    routes::{
+        admin_dashboard, change_password, change_password_form, confirm, home, login, login_form,
+        publish_newsletter, subscribe,
+    },
 };
 
 pub struct Application {
@@ -152,6 +155,8 @@ async fn run(
             .service(login)
             .service(login_form)
             .service(admin_dashboard)
+            .service(change_password_form)
+            .service(change_password)
             .service(fs::Files::new("/assets", "./static/assets"))
             .service(fs::Files::new("/images", "./static/images"))
             .service(
