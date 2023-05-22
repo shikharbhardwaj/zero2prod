@@ -20,6 +20,19 @@
     },
     "query": "\n        SELECT username\n        FROM users\n        WHERE user_id = $1\n        "
   },
+  "6e09392db3b0718ad90c65ab1146244c76602c6935bd9f6f5c6457a61aad967b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n        UPDATE users\n        SET password = $1\n        WHERE user_id = $2\n        "
+  },
   "7b57e2776a245ba1602f638121550485e2219a6ccaaa62b5ec3e4683e33a3b5f": {
     "describe": {
       "columns": [
