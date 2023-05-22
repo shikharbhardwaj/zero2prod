@@ -26,6 +26,11 @@
                     <div class="split style2">
                         <seection>
                             <h2>Login</h2>
+                            {% if error != "" -%}
+                                <blockquote>
+                                    <i style="color: #FC440F">{{ error }}</i>
+                                </blockquote>
+                            {% endif -%}
                         </seection>
                         <section>
                             <form action="/login" method="post">
