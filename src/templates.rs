@@ -21,4 +21,5 @@ pub struct AdminDashboardTemplate<'a> {
 #[template(path = "change_password.html")]
 pub struct ChangePasswordTemplate<'a> {
     pub error: &'a str,
+    pub info: &'a str,
 }

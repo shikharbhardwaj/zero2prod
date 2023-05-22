@@ -24,9 +24,18 @@ pub async fn change_password_form(
         writeln!(error, "{}", m.content()).unwrap();
     }
 
-    let html = ChangePasswordTemplate { error: &error }
-        .render()
-        .expect("Could not render admin dashboard template.");
+    let mut info = String::new();
+
+    for m in flash_messages.iter().filter(|m| m.level() == Level::Info) {
+        writeln!(info, "{}", m.content()).unwrap();
+    }
+
+    let html = ChangePasswordTemplate {
+        error: &error,
+        info: &info,
+    }
+    .render()
+    .expect("Could not render admin dashboard template.");
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::html())
