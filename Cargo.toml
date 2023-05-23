@@ -44,6 +44,7 @@ actix-web-flash-messages = { version = "0.4", features = ["cookies"] }
 actix-session = { version = "0.7", features = ["redis-rs-tls-session"] }
 askama = "0.12.0"
 redis = "0.23.0"
+actix-web-lab = "0.18"
 
 # On Linux:
 # - Ubuntu, `sudo apt-get install lld clang`

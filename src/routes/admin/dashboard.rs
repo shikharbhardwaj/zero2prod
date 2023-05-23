@@ -1,25 +1,19 @@
-use actix_session::Session;
 use actix_web::{get, http::header::ContentType, web, HttpResponse};
 use anyhow::Context;
 use askama::Template;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    templates::AdminDashboardTemplate,
-    utils::{e500, see_other},
-};
+use crate::{authentication::UserId, templates::AdminDashboardTemplate, utils::e500};
 
-#[get("/admin/dashboard")]
+#[get("/dashboard")]
 pub async fn admin_dashboard(
-    session: Session,
+    user_id: web::ReqData<UserId>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let username = if let Some(user_id) = session.get::<Uuid>("user_id").map_err(e500)? {
-        get_username(user_id, &pool).await.map_err(e500)?
-    } else {
-        return Ok(see_other("/login"));
-    };
+    let user_id = user_id.into_inner();
+
+    let username = get_username(*user_id, &pool).await.map_err(e500)?;
 
     let html = AdminDashboardTemplate {
         username: &username,

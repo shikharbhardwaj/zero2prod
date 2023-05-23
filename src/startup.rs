@@ -9,6 +9,7 @@ use actix_web::{
     App, HttpServer,
 };
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
+use actix_web_lab::middleware::from_fn;
 use secrecy::{ExposeSecret, Secret};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tracing_actix_web::TracingLogger;
@@ -19,6 +20,7 @@ use utoipa::{
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
+    authentication::reject_anonymous_users,
     configuration::{DatabaseSettings, Settings},
     domain,
     email_client::EmailClient,
@@ -154,10 +156,14 @@ async fn run(
             .service(home)
             .service(login)
             .service(login_form)
-            .service(admin_dashboard)
-            .service(change_password_form)
-            .service(change_password)
-            .service(log_out)
+            .service(
+                web::scope("/admin")
+                    .wrap(from_fn(reject_anonymous_users))
+                    .service(admin_dashboard)
+                    .service(change_password_form)
+                    .service(change_password)
+                    .service(log_out),
+            )
             .service(fs::Files::new("/assets", "./static/assets"))
             .service(fs::Files::new("/images", "./static/images"))
             .service(
