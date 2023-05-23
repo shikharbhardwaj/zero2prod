@@ -27,7 +27,7 @@ use crate::{
     routes::health_check,
     routes::{
         admin_dashboard, change_password, change_password_form, confirm, home, log_out, login,
-        login_form, publish_newsletter, subscribe,
+        login_form, newsletter_issue_form, publish_newsletter, subscribe,
     },
 };
 
@@ -162,6 +162,8 @@ async fn run(
                     .service(admin_dashboard)
                     .service(change_password_form)
                     .service(change_password)
+                    .service(newsletter_issue_form)
+                    .service(publish_newsletter)
                     .service(log_out),
             )
             .service(fs::Files::new("/assets", "./static/assets"))

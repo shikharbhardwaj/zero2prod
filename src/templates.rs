@@ -23,3 +23,10 @@ pub struct ChangePasswordTemplate<'a> {
     pub error: &'a str,
     pub info: &'a str,
 }
+
+#[derive(Template)]
+#[template(path = "admin_newsletter.html")]
+pub struct SendNewsletterTemplate<'a> {
+    pub error: &'a str,
+    pub info: &'a str,
+}

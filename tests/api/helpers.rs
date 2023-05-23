@@ -147,6 +147,14 @@ impl TestApp {
             .await
             .expect("Failed to execute request.")
     }
+
+    pub async fn get_newsletter_publish(&self) -> reqwest::Response {
+        self.api_client
+            .get(format!("{}/admin/newsletters", &self.url))
+            .send()
+            .await
+            .expect("Failed to send request.")
+    }
 }
 
 pub struct TestUser {

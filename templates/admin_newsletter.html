@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Home</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="/assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+				<section id="main" class="wrapper">
+					<div class="inner">
+						<div class="row uniform">
+							<div class="split style2">
+								<seection>
+									<h2>Send a newsletter issue</h2>
+									{% if error != "" -%}
+										<blockquote>
+											<i style="color: #FC440F">{{ error }}</i>
+										</blockquote>
+									{% endif -%}
+									{% if info != "" -%}
+										<blockquote>
+											<i>{{ info }}</i>
+										</blockquote>
+									{% endif -%}
+									<ul class="actions vertical">
+										<li><a href="/admin/dashboard" class="button icon fa-left-arrow">← Back</a></li>
+										<li><a href="/admin/password" class="button">Change password</a></li>
+										<li>
+											<form name="logoutForm" action="/admin/logout" method="post">
+												<input type="submit" value="Logout" class="button">
+											</form>
+										</li>
+									</ul>
+								</seection>
+								<section>
+									<form action="/admin/password" method="post">
+										<div class="row uniform 12u$">
+											<div class="field 12u">
+												<label>Title
+												<input type="text" name="title" placeholder="Issue title">
+												</label>
+											</div>
+											<div class="field 12u">
+												<label>Content
+												<textarea name="content" placeholder="Newsletter issue content" rows="6"></textarea>
+												</label>
+											</div>
+											<br />
+											<ul class="actions">
+												<li><input type="submit" value="Send" class="button special"></li>
+												<li><input type="reset" value="Reset"></li>
+											</ul>
+										</div>
+									</form>
+								</section>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper style1-alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/jquery.scrollex.min.js"></script>
+			<script src="/assets/js/jquery.scrolly.min.js"></script>
+			<script src="/assets/js/browser.min.js"></script>
+			<script src="/assets/js/breakpoints.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<script src="/assets/js/main.js"></script>
+
+	</body>
+</html>
