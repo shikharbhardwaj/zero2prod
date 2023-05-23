@@ -42,6 +42,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/target/release/zero2prod zero2prod
+COPY static static
 COPY configuration configuration
 ENV APP_ENVIRONMENT production
 
