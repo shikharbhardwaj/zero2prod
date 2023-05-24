@@ -1,4 +1,4 @@
-use crate::helpers::{spawn_app, ConfirmationLinks, TestApp};
+use crate::helpers::{assert_is_redirect_to, spawn_app, ConfirmationLinks, TestApp};
 use wiremock::matchers::{any, method, path};
 use wiremock::{Mock, ResponseTemplate};
 
@@ -19,20 +19,33 @@ async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
     // A sketch of the newsletter payload structure.
     let newsletter_request_body = serde_json::json!({
         "title": "Newsletter title",
-        "content": {
-            "text": "Newsletter body as plain text",
-            "html": "<p>Newsletter body as HTML</p>"
-        }
+        "text_content": "Newsletter body as plain text",
+        "html_content": "<p>Newsletter body as HTML</p>"
     });
 
-    let response = app.post_newsletters(newsletter_request_body).await;
+    app.post_login(&serde_json::json!({
+        "username": &app.user.username,
+        "password": &app.user.password,
+    }))
+    .await;
 
-    assert_eq!(response.status().as_u16(), 200);
+    let response = app.post_newsletters(newsletter_request_body).await;
+    assert_is_redirect_to(&response, "/admin/newsletters");
+
+    let html_page = app.get_newsletter_publish_html().await;
+    assert!(html_page.contains("The newsletter issue has been published!"));
 }
 
 #[tokio::test]
 async fn newsletters_are_delivered_to_confirmed_subscribers() {
     let app = spawn_app().await;
+
+    app.post_login(&serde_json::json!({
+        "username": app.user.username,
+        "password": app.user.password,
+    }))
+    .await;
+
     create_confirmed_subscriber(&app).await;
 
     Mock::given(path("/email"))
@@ -45,28 +58,33 @@ async fn newsletters_are_delivered_to_confirmed_subscribers() {
     // Act
     let newsletter_request_body = serde_json::json!({
         "title": "Newsletter title",
-        "content": {
-            "text": "Newsletter body as plain text",
-            "html": "<p>Newsletter body as HTML</p>",
-        }
+        "text_content": "Newsletter body as plain text",
+        "html_content": "<p>Newsletter body as HTML</p>",
     });
 
     let response = app.post_newsletters(newsletter_request_body).await;
+    assert_is_redirect_to(&response, "/admin/newsletters");
 
-    assert_eq!(response.status().as_u16(), 200);
+    let html_page = app.get_newsletter_publish_html().await;
+    assert!(html_page.contains("The newsletter issue has been published!"));
 }
 
 #[tokio::test]
 async fn newsletter_returns_400_for_invalid_data() {
     // Arrange
     let app = spawn_app().await;
+
+    app.post_login(&serde_json::json!({
+        "username": app.user.username,
+        "password": app.user.password,
+    }))
+    .await;
+
     let test_cases = vec![
         (
             serde_json::json!({
-                "content": {
-                    "text": "Some text",
-                    "html": "<p>Some html</p>"
-                }
+                "text_content": "Some text",
+                "html_content": "<p>Some html</p>"
             }),
             "missing_title",
         ),
@@ -95,29 +113,14 @@ async fn newsletter_request_without_auth_gets_rejected() {
     let app = spawn_app().await;
 
     let body = serde_json::json!({
-        "content": {
-            "text": "Some text",
-            "html": "Some html",
-        },
+        "context_text": "Some text",
+        "content_html": "Some html",
         "title": "Some title"
     });
 
-    let response = reqwest::Client::new()
-        .post(&format!("{}/newsletters", app.url))
-        .json(&body)
-        .send()
-        .await
-        .expect("Failed to execute request.");
+    let response = app.post_newsletters(body).await;
 
-    assert_eq!(
-        401,
-        response.status().as_u16(),
-        "The API did not return 401 unauthorized when no authorization information was provided."
-    );
-    assert_eq!(
-        r#"Basic realm="publish""#,
-        response.headers()["WWW-Authenticate"]
-    );
+    assert_is_redirect_to(&response, "/login");
 }
 
 async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {

@@ -105,7 +105,6 @@ async fn run(
             schemas(domain::SubscriberName),
             schemas(domain::SubscriberEmail),
             schemas(crate::routes::NewsletterRequestBody),
-            schemas(crate::routes::Content),
             schemas(crate::routes::LoginFormData),
         ),
         tags(
@@ -152,7 +151,6 @@ async fn run(
             .service(health_check)
             .service(subscribe)
             .service(confirm)
-            .service(publish_newsletter)
             .service(home)
             .service(login)
             .service(login_form)

@@ -17,7 +17,7 @@ pub struct FormData {
 }
 
 #[utoipa::path(
-    request_body(content=SubscriptionRequest, description="Details for subscription", content_type="application/x-www-form-urlencoded"),
+    request_body(content=FormData, description="Password change request", content_type="application/x-www-form-urlencoded"),
     responses(
         (status = 200, description = "OK"),
         (status = 401, description = "Unauthorized"),
