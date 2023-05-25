@@ -59,7 +59,7 @@ pub async fn signup(
     match insert_user(credentials.username, credentials.password, &pool).await {
         Ok(_) => {
             session.renew();
-            FlashMessage::error("Successful signup!").send();
+            FlashMessage::info("Successful signup!").send();
             Ok(see_other("/login"))
         }
         Err(e) => {

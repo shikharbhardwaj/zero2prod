@@ -25,7 +25,7 @@
                 <div class="row uniform">
                     <div class="split style2">
                         <seection>
-                            <h2>Login</h2>
+                            <h2>Signup</h2>
                             {% if error != "" -%}
                                 <blockquote>
                                     <i style="color: #FC440F">{{ error }}</i>
@@ -38,11 +38,11 @@
                             {% endif -%}
                         </seection>
                         <section>
-                            <form action="/login" method="post">
+                            <form action="/signup" method="post">
                                 <div class="row uniform 12u$">
                                     <div class="field">
                                         <label>Signup token
-                                        <input type="text" name="signup_token" placeholder="Signup token">
+                                        <input type="password" name="signup_token" placeholder="Signup token">
                                         </label>
                                     </div>
                                     <div class="field">
@@ -57,7 +57,7 @@
                                     </div>
                                     <br />
                                     <ul class="actions">
-                                        <li><input type="submit" value="Login" class="button special"></li>
+                                        <li><input type="submit" value="Signup" class="button special"></li>
                                         <li><input type="reset" value="Reset"></li>
                                     </ul>
                                 </div>
