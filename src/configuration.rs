@@ -1,5 +1,7 @@
 use secrecy::{ExposeSecret, Secret};
-use serde_aux::field_attributes::deserialize_number_from_string;
+use serde_aux::{
+    field_attributes::deserialize_number_from_string, prelude::deserialize_bool_from_anything,
+};
 use sqlx::{postgres::PgConnectOptions, ConnectOptions};
 
 use crate::domain::SubscriberEmail;
@@ -45,12 +47,20 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub base_url: String,
     pub hmac_secret: Secret<String>,
+    pub signup: SignupSettings,
 }
 
 impl ApplicationSettings {
     pub fn get_listen_addr(&self) -> String {
         format!("{}:{}", self.host, self.port)
     }
+}
+
+#[derive(serde::Deserialize, Clone)]
+pub struct SignupSettings {
+    #[serde(deserialize_with = "deserialize_bool_from_anything")]
+    pub enabled: bool,
+    pub token: Secret<String>,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {

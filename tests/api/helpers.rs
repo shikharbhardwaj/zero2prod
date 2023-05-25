@@ -1,5 +1,6 @@
 use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
 use once_cell::sync::Lazy;
+use secrecy::Secret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use wiremock::MockServer;
@@ -29,6 +30,7 @@ pub struct TestApp {
     pub port: u16,
     pub user: TestUser,
     pub api_client: reqwest::Client,
+    pub signup_token: Secret<String>,
 }
 
 impl TestApp {
@@ -161,6 +163,34 @@ impl TestApp {
             .await
             .expect("Could not get text from request")
     }
+
+    pub async fn get_signup(&self) -> reqwest::Response {
+        self.api_client
+            .get(format!("{}/signup", self.url))
+            .send()
+            .await
+            .expect("Failed to send request.")
+    }
+
+    pub async fn get_signup_html(&self) -> String {
+        self.get_signup()
+            .await
+            .text()
+            .await
+            .expect("Failed to convert response to text")
+    }
+
+    pub async fn post_signup<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(format!("{}/signup", self.url))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to send request.")
+    }
 }
 
 pub struct TestUser {
@@ -211,12 +241,15 @@ pub async fn spawn_app() -> TestApp {
 
     // Launch a mock server to stand in for Postmark's API
     let email_server = MockServer::start().await;
+    let signup_token = Secret::new(Uuid::new_v4().to_string());
 
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
         c.database.database_name = Uuid::new_v4().to_string();
         c.application.port = 0;
         c.email_client.base_url = email_server.uri();
+        c.application.signup.enabled = true;
+        c.application.signup.token = signup_token.clone();
         c
     };
 
@@ -247,6 +280,7 @@ pub async fn spawn_app() -> TestApp {
         port,
         user: test_user,
         api_client,
+        signup_token,
     }
 }
 

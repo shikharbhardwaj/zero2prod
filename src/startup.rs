@@ -21,13 +21,13 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
     authentication::reject_anonymous_users,
-    configuration::{DatabaseSettings, Settings},
+    configuration::{DatabaseSettings, Settings, SignupSettings},
     domain,
     email_client::EmailClient,
     routes::health_check,
     routes::{
         admin_dashboard, change_password, change_password_form, confirm, home, log_out, login,
-        login_form, newsletter_issue_form, publish_newsletter, subscribe,
+        login_form, newsletter_issue_form, publish_newsletter, signup, signup_form, subscribe,
     },
 };
 
@@ -66,6 +66,7 @@ impl Application {
             configuration.application.base_url,
             configuration.application.hmac_secret,
             configuration.redis_uri,
+            configuration.application.signup,
         )
         .await?;
 
@@ -90,6 +91,7 @@ async fn run(
     base_url: String,
     hmac_secret: Secret<String>,
     redis_uri: Secret<String>,
+    signup_settings: SignupSettings,
 ) -> Result<Server, anyhow::Error> {
     #[derive(OpenApi)]
     #[openapi(
@@ -98,7 +100,8 @@ async fn run(
             crate::routes::subscribe,
             crate::routes::confirm,
             crate::routes::publish_newsletter,
-            crate::routes::login
+            crate::routes::login,
+            crate::routes::signup,
         ),
         components(
             schemas(domain::SubscriptionRequest),
@@ -106,6 +109,7 @@ async fn run(
             schemas(domain::SubscriberEmail),
             schemas(crate::routes::NewsletterRequestBody),
             schemas(crate::routes::LoginFormData),
+            schemas(crate::routes::SignupFormData),
         ),
         tags(
             (name = "zero2prod", description = "Newsletter app built following the Rust: Zero to Production book.")
@@ -132,6 +136,7 @@ async fn run(
     let connection = web::Data::new(connection);
     let email_client = web::Data::new(email_client);
     let base_url = web::Data::new(ApplicationBaseUrl(base_url));
+    let signup_settings = web::Data::new(signup_settings);
 
     let secret_key = Key::from(hmac_secret.expose_secret().as_bytes());
 
@@ -154,6 +159,8 @@ async fn run(
             .service(home)
             .service(login)
             .service(login_form)
+            .service(signup)
+            .service(signup_form)
             .service(
                 web::scope("/admin")
                     .wrap(from_fn(reject_anonymous_users))
@@ -172,6 +179,7 @@ async fn run(
             .app_data(connection.clone())
             .app_data(email_client.clone())
             .app_data(base_url.clone())
+            .app_data(signup_settings.clone())
             .app_data(Data::new(HmacSecret(hmac_secret.clone())))
     })
     .listen(listener)?

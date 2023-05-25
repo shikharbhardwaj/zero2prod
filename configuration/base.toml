@@ -11,6 +11,10 @@ port = 5432
 port = 8000
 hmac_secret = "hmac-secret-token-that-needs-to-be-reset-for-prod-and-needs-to-be-longer-than-64-chars"
 
+[application.signup]
+enabled = false
+token = "secret-signup-token"
+
 [email_client]
 base_url = "localhost"
 sender_email = "test@gmail.com"

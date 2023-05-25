@@ -30,7 +30,7 @@ DB_HOST="${POSTGRES_HOST:=localhost}"
 if [[ -z "${SKIP_DOCKER}" ]]
 then
   # if a postgres container is running, print instructions to kill it and exit
-  RUNNING_POSTGRES_CONTAINER=$(docker ps --filter 'name=postgres' --format '{{.ID}}')
+  RUNNING_POSTGRES_CONTAINER=$(docker ps --filter 'name=zero2prod_local_postgres' --format '{{.ID}}')
   if [[ -n $RUNNING_POSTGRES_CONTAINER ]]; then
     echo >&2 "there is a postgres container already running, kill it with"
     echo >&2 "    docker kill ${RUNNING_POSTGRES_CONTAINER}"
@@ -43,7 +43,7 @@ then
       -e POSTGRES_DB=${DB_NAME} \
       -p "${DB_PORT}":5432 \
       -d \
-      --name "postgres_$(date '+%s')" \
+      --name "zero2prod_local_postgres_$(date '+%s')" \
       postgres -N 1000
       # ^ Increased maximum number of connections for testing purposes
 fi
