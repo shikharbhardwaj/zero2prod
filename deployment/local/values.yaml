@@ -1,0 +1,15 @@
+image:
+  tag: 879a6be
+
+zero2prod:
+  senderEmail: someone@example.com
+  postmarkAuthToken: <auth token>
+  hmacSecret: <hmac secret longer than 64 chars>
+  redisUri: redis://zero2prod-redis-master:6379
+
+global:
+  storageClass: hostpath
+  postgresql:
+    auth:
+      postgresPassword: <postgres password>
+
