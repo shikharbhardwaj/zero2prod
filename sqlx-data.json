@@ -122,6 +122,20 @@
     },
     "query": "SELECT subscriber_id FROM subscription_tokens WHERE subscription_token = $1"
   },
+  "d0d62c2d33810dc20e4a15ccd3d4210f7c8a8c45a91e56e109ac2d0c673f5875": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        INSERT INTO users (user_id, username, password)\n        VALUES (\n            $1,\n            $2,\n            $3\n        )"
+  },
   "e6822c9e162eabc20338cc27d51a8e80578803ec1589c234d93c3919d14a96a6": {
     "describe": {
       "columns": [],
