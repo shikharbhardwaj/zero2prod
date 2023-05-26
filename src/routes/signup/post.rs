@@ -42,11 +42,13 @@ pub async fn signup(
     signup_settings: web::Data<SignupSettings>,
 ) -> Result<HttpResponse, actix_web::Error> {
     if !signup_settings.enabled {
+        tracing::warn!("Signups disabled.");
         FlashMessage::error("Signups are disabled").send();
         return Ok(see_other("/login"));
     }
 
     if signup_settings.token.expose_secret() != form.0.signup_token.expose_secret() {
+        tracing::warn!("Signup token did not match");
         FlashMessage::error("Invalid signup token").send();
         return Ok(see_other("/signup"));
     }
