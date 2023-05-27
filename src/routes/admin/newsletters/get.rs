@@ -2,6 +2,7 @@ use actix_web::{get, http::header::ContentType, HttpResponse};
 use actix_web_flash_messages::{IncomingFlashMessages, Level};
 use askama::Template;
 use std::fmt::Write;
+use uuid::Uuid;
 
 use crate::templates::SendNewsletterTemplate;
 
@@ -24,6 +25,7 @@ pub async fn newsletter_issue_form(
     let html = SendNewsletterTemplate {
         error: &error,
         info: &info,
+        idempotency_key: &Uuid::new_v4().to_string(),
     }
     .render()
     .expect("Could not render send newsletter admin template.");

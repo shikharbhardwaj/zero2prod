@@ -73,7 +73,7 @@ impl TestApp {
         ConfirmationLinks { html, plain_text }
     }
 
-    pub async fn post_newsletters(&self, body: serde_json::Value) -> reqwest::Response {
+    pub async fn post_newsletters(&self, body: &serde_json::Value) -> reqwest::Response {
         self.api_client
             .post(&format!("{}/admin/newsletters", self.url))
             .form(&body)
@@ -227,6 +227,15 @@ impl TestUser {
         .execute(pool)
         .await
         .expect("Failed to create test users");
+    }
+
+    pub async fn login(&self, app: &TestApp) {
+        let body = serde_json::json!({
+            "username": self.username,
+            "password": self.password,
+        });
+
+        app.post_login(&body).await;
     }
 }
 

@@ -36,4 +36,5 @@ pub struct ChangePasswordTemplate<'a> {
 pub struct SendNewsletterTemplate<'a> {
     pub error: &'a str,
     pub info: &'a str,
+    pub idempotency_key: &'a str,
 }

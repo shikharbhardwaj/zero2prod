@@ -20,16 +20,13 @@ async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
     let newsletter_request_body = serde_json::json!({
         "title": "Newsletter title",
         "text_content": "Newsletter body as plain text",
-        "html_content": "<p>Newsletter body as HTML</p>"
+        "html_content": "<p>Newsletter body as HTML</p>",
+        "idempotency_key": uuid::Uuid::new_v4().to_string(),
     });
 
-    app.post_login(&serde_json::json!({
-        "username": &app.user.username,
-        "password": &app.user.password,
-    }))
-    .await;
+    app.user.login(&app).await;
 
-    let response = app.post_newsletters(newsletter_request_body).await;
+    let response = app.post_newsletters(&newsletter_request_body).await;
     assert_is_redirect_to(&response, "/admin/newsletters");
 
     let html_page = app.get_newsletter_publish_html().await;
@@ -40,11 +37,7 @@ async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
 async fn newsletters_are_delivered_to_confirmed_subscribers() {
     let app = spawn_app().await;
 
-    app.post_login(&serde_json::json!({
-        "username": app.user.username,
-        "password": app.user.password,
-    }))
-    .await;
+    app.user.login(&app).await;
 
     create_confirmed_subscriber(&app).await;
 
@@ -60,9 +53,10 @@ async fn newsletters_are_delivered_to_confirmed_subscribers() {
         "title": "Newsletter title",
         "text_content": "Newsletter body as plain text",
         "html_content": "<p>Newsletter body as HTML</p>",
+        "idempotency_key": uuid::Uuid::new_v4().to_string(),
     });
 
-    let response = app.post_newsletters(newsletter_request_body).await;
+    let response = app.post_newsletters(&newsletter_request_body).await;
     assert_is_redirect_to(&response, "/admin/newsletters");
 
     let html_page = app.get_newsletter_publish_html().await;
@@ -74,11 +68,7 @@ async fn newsletter_returns_400_for_invalid_data() {
     // Arrange
     let app = spawn_app().await;
 
-    app.post_login(&serde_json::json!({
-        "username": app.user.username,
-        "password": app.user.password,
-    }))
-    .await;
+    app.user.login(&app).await;
 
     let test_cases = vec![
         (
@@ -97,7 +87,7 @@ async fn newsletter_returns_400_for_invalid_data() {
     ];
 
     for (invalid_body, error_msg) in test_cases {
-        let response = app.post_newsletters(invalid_body).await;
+        let response = app.post_newsletters(&invalid_body).await;
 
         assert_eq!(
             400,
@@ -118,9 +108,45 @@ async fn newsletter_request_without_auth_gets_rejected() {
         "title": "Some title"
     });
 
-    let response = app.post_newsletters(body).await;
+    let response = app.post_newsletters(&body).await;
 
     assert_is_redirect_to(&response, "/login");
+}
+
+#[tokio::test]
+async fn newsletter_creation_is_idempotent() {
+    let app = spawn_app().await;
+    create_confirmed_subscriber(&app).await;
+
+    app.user.login(&app).await;
+
+    Mock::given(path("/email"))
+        .and(method("POST"))
+        .respond_with(ResponseTemplate::new(200))
+        .expect(1)
+        .mount(&app.email_server)
+        .await;
+
+    let newsletter_request_body = serde_json::json!({
+        "title": "Newsletter title",
+        "text_content": "Newsletter body as plain text",
+        "html_content": "<p>Newsletter body as HTML</p>",
+        "idempotency_key": uuid::Uuid::new_v4().to_string(),
+    });
+
+    let response = app.post_newsletters(&newsletter_request_body).await;
+    assert_is_redirect_to(&response, "/admin/newsletters");
+
+    let html_page = app.get_newsletter_publish_html().await;
+    assert!(html_page.contains("The newsletter issue has been published!"));
+
+    // Repeat again, expecting the same user facing behaviour but the emails
+    // should only be sent once.
+    let response = app.post_newsletters(&newsletter_request_body).await;
+    assert_is_redirect_to(&response, "/admin/newsletters");
+
+    let html_page = app.get_newsletter_publish_html().await;
+    assert!(html_page.contains("The newsletter issue has been published!"));
 }
 
 async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {

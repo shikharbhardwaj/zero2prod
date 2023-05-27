@@ -2,6 +2,7 @@ use crate::{
     authentication::UserId,
     domain::SubscriberEmail,
     email_client::EmailClient,
+    idempotency::{get_saved_response, save_response, IdempotencyKey},
     utils::{e500, see_other},
 };
 use actix_web::{post, web, HttpResponse};
@@ -15,6 +16,7 @@ pub struct NewsletterRequestBody {
     title: String,
     text_content: String,
     html_content: String,
+    idempotency_key: String,
 }
 
 #[utoipa::path(
@@ -36,6 +38,16 @@ pub async fn publish_newsletter(
     user_id: web::ReqData<UserId>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let subscribers = get_confirmed_subscribers(&pool).await.map_err(e500)?;
+    let idempotency_key: IdempotencyKey =
+        form.0.idempotency_key.clone().try_into().map_err(e500)?;
+
+    if let Some(response) = get_saved_response(&pool, &idempotency_key, **user_id)
+        .await
+        .map_err(e500)?
+    {
+        FlashMessage::info("The newsletter issue has been published!").send();
+        return Ok(response);
+    }
 
     for subscriber in subscribers {
         match subscriber {
@@ -61,7 +73,12 @@ pub async fn publish_newsletter(
     }
 
     FlashMessage::info("The newsletter issue has been published!").send();
-    Ok(see_other("/admin/newsletters"))
+    let response = see_other("/admin/newsletters");
+    let response = save_response(&pool, &idempotency_key, **user_id, response)
+        .await
+        .map_err(e500)?;
+
+    Ok(response)
 }
 
 struct ConfirmedSubscriber {
