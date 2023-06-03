@@ -44,7 +44,7 @@ pub async fn signup(
     if !signup_settings.enabled {
         tracing::warn!("Signups disabled.");
         FlashMessage::error("Signups are disabled").send();
-        return Ok(see_other("/login"));
+        return Ok(see_other("/signup"));
     }
 
     if signup_settings.token.expose_secret() != form.0.signup_token.expose_secret() {

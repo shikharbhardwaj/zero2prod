@@ -1,83 +1,80 @@
-<!DOCTYPE HTML>
-<!--
-	Hyperspace by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>Login</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript>
-        <link rel="stylesheet" href="assets/css/noscript.css" />
-    </noscript>
-</head>
+{% block title %}Signup - Zero2Prod{% endblock %}
 
-<body class="is-preload">
+{% block content %}
+<main class="min-vh-100 p-4 d-flex justify-content-center align-items-center flex-wrap">
+    <div class="space-y">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Signup</h3>
 
-    <!-- Wrapper -->
-    <div id="wrapper">
-        <section id="main" class="wrapper">
-            <div class="inner">
-                <div class="row uniform">
-                    <div class="split style2">
-                        <seection>
-                            <h2>Signup</h2>
-                            {% if error != "" -%}
-                                <blockquote>
-                                    <i style="color: #FC440F">{{ error }}</i>
-                                </blockquote>
-                            {% endif -%}
-                            {% if info != "" -%}
-                                <blockquote>
-                                    <i>{{ info }}</i>
-                                </blockquote>
-                            {% endif -%}
-                        </seection>
-                        <section>
-                            <form action="/signup" method="post">
-                                <div class="row uniform 12u$">
-                                    <div class="field">
-                                        <label>Signup token
-                                        <input type="password" name="signup_token" placeholder="Signup token">
-                                        </label>
-                                    </div>
-                                    <div class="field">
-                                        <label>Username
-                                        <input type="text" name="username" placeholder="Username">
-                                        </label>
-                                    </div>
-                                    <div class="field">
-                                        <label>Password
-                                        <input type="password" name="password" placeholder="Password">
-                                        </label>
-                                    </div>
-                                    <br />
-                                    <ul class="actions">
-                                        <li><input type="submit" value="Signup" class="button special"></li>
-                                        <li><input type="reset" value="Reset"></li>
-                                    </ul>
-                                </div>
-                            </form>
-                        </section>
+                 {% if error != "" -%}
+                    <div class="alert alert-warning">
+                        <h4 class="alert-title">Signup failed</h4>
+                        <div class="text-muted">{{ error }}</div>
                     </div>
-                </div>
+                {% endif -%}
+                {% if info != "" -%}
+                    <div class="alert alert-info">
+                        <h4 class="alert-title">Signup successful</h4>
+                        <div class="text-muted">{{ info }}</div>
+                    </div>
+                {% endif -%}
+
+                <form action="/signup" method="post">
+                    <div class="input-icon mb-3">
+                        <span class="input-icon-addon">
+                            <i class="ti ti-user"></i>
+                        </span>
+                        <input type="text" class="form-control" name="username" placeholder="Username"
+                            autocomplete="off">
+                    </div>
+                    <div class="mb-3 input-group input-group-flat">
+                        <span class="input-group-text">
+                            <i class="ti ti-lock"></i>
+                        </span>
+                        <input type="password" id="password-input" class="form-control" name="password" placeholder="Password" data-hidden="">
+                        <span class="input-group-text">
+                            <i class="ti ti-eye-off" id="password-show-toggle" onclick="togglePasswordVisible()"></i>
+                        </span>
+                    </div>
+                    <div class="mb-3 input-group input-group-flat">
+                        <span class="input-group-text">
+                            <i class="ti ti-square-key"></i>
+                        </span>
+                        <input type="password" class="form-control" name="signup_token" placeholder="Signup token" data-hidden="">
+                    </div>
+                    <div class="space-x justify-content-center">
+                        <input type="submit" value="Signup" class="btn btn-primary">
+                        <input type="reset" value="Reset" class="btn">
+                    </div>
+                </form>
             </div>
-        </section>
+        </div>
     </div>
+</main>
 
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/jquery.scrollex.min.js"></script>
-    <script src="assets/js/jquery.scrolly.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+<style>
+    #password-show-toggle {
+        cursor: pointer;
+    }
+</style>
 
-</body>
+<script>
 
-</html>
+function togglePasswordVisible() {
+    var passwordToggle = document.getElementById('password-show-toggle');
+    passwordToggle.classList.toggle('ti-eye-off');
+    passwordToggle.classList.toggle('ti-eye');
+    var passwordInput = document.getElementById('password-input');
+    if (passwordInput.toggleAttribute("data-hidden")) {
+        passwordInput.setAttribute("type", "password");
+    } else {
+        passwordInput.setAttribute("type", "text");
+    }
+}
+
+</script>
+
+{% endblock %}
