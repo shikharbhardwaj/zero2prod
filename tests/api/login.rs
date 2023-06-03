@@ -13,11 +13,11 @@ async fn an_error_flash_message_is_set_on_failure() {
     assert_is_redirect_to(&response, "/login");
 
     let html_page = app.get_login_html().await;
-    assert!(html_page.contains(r#"Authentication failed"#));
+    assert!(html_page.contains(r#"Invalid username or password"#));
 
     // The message should dissappear on reload.
     let html_page = app.get_login_html().await;
-    assert!(!html_page.contains(r#"Authentication failed"#));
+    assert!(!html_page.contains(r#"Invalid username or password"#));
 }
 
 #[tokio::test]
