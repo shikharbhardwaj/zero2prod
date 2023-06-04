@@ -5,12 +5,12 @@ pub mod home;
 pub mod login;
 pub mod signup;
 
-pub use admin_dashboard::*;
-pub use admin_newsletter::*;
-pub use change_password::*;
-pub use home::*;
-pub use login::*;
-pub use signup::*;
+pub use admin_dashboard::AdminDashboardTemplate;
+pub use admin_newsletter::SendNewsletterTemplate;
+pub use change_password::ChangePasswordTemplate;
+pub use home::HomeTemplate;
+pub use login::LoginTemplate;
+pub use signup::SignupTemplate;
 
 pub struct PathPart<'a> {
     pub link: &'a str,
