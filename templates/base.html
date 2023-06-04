@@ -16,17 +16,35 @@
 
 <body class="is-preload">
     <div class="page">
+    <main class="p-2 d-flex flex-wrap">
+        <div class="page-header">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-1">
+                        <ol class="breadcrumb" aria-label="breadcrumbs">
+                            {% for part in self::path() %}
+                            {% if loop.last %}
+                            <li class="breadcrumb-item active">
+                                <a href="{{part.link}}">{{part.name}}</a></li>
+                            {% else %}
+                            <li class="breadcrumb-item">
+                                <a href="{{part.link}}">{{part.name}}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    <!-- <h2 class="page-title">
+                    <span class="text-truncate">Home</span>
+                </h2> -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+
         <!-- Content -->
         <div class="page-wrapper">
-            <ol class="breadcrumb" aria-label="breadcrumbs">
-                {% for part in self::path() %}
-                    {% if loop.last %}
-                    <li class="breadcrumb-item active"><a href="{{part.link}}">{{part.name}}</a></li>
-                    {% else %}
-                    <li class="breadcrumb-item"><a href="{{part.link}}">{{part.name}}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ol>
             {% block content %}{% endblock %}
         </div>
     </div>

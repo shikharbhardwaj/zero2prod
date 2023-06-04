@@ -6,7 +6,7 @@ use actix_web::{
     cookie::Key,
     dev::Server,
     web::{self, Data},
-    App, HttpServer,
+    App, HttpRequest, HttpServer,
 };
 use actix_web_flash_messages::{storage::CookieMessageStore, FlashMessagesFramework};
 use actix_web_lab::middleware::from_fn;
@@ -160,6 +160,7 @@ async fn run(
             )
             .service(fs::Files::new("/assets", "./static/assets"))
             .service(fs::Files::new("/images", "./static/images"))
+            .service(web::resource("/favicon.ico").route(web::get().to(favicon)))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
@@ -182,4 +183,8 @@ pub fn get_connection_pool(configuration: &DatabaseSettings) -> PgPool {
     PgPoolOptions::new()
         .acquire_timeout(std::time::Duration::from_secs(2))
         .connect_lazy_with(configuration.with_db())
+}
+
+async fn favicon(_req: HttpRequest) -> actix_web::error::Result<fs::NamedFile> {
+    Ok(fs::NamedFile::open("./static/favicon.ico")?)
 }
