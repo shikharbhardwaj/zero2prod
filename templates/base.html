@@ -18,6 +18,15 @@
     <div class="page">
         <!-- Content -->
         <div class="page-wrapper">
+            <ol class="breadcrumb" aria-label="breadcrumbs">
+                {% for part in self::path() %}
+                    {% if loop.last %}
+                    <li class="breadcrumb-item active"><a href="{{part.link}}">{{part.name}}</a></li>
+                    {% else %}
+                    <li class="breadcrumb-item"><a href="{{part.link}}">{{part.name}}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
             {% block content %}{% endblock %}
         </div>
     </div>
