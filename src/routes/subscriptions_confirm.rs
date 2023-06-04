@@ -1,7 +1,9 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse};
 use sqlx::PgPool;
 use utoipa::IntoParams;
 use uuid::Uuid;
+
+use crate::utils::e500;
 
 #[derive(serde::Deserialize, IntoParams)]
 pub struct Parameters {
@@ -19,20 +21,22 @@ pub struct Parameters {
 )]
 #[get("/subscriptions/confirm")]
 #[tracing::instrument(name = "Confirming a pending subscription", skip(parameters, pool))]
-async fn confirm(parameters: web::Query<Parameters>, pool: web::Data<PgPool>) -> impl Responder {
-    let id = match get_subscriber_id_from_token(&pool, &parameters.subscription_token).await {
-        Ok(id) => id,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
-    };
+async fn confirm(
+    parameters: web::Query<Parameters>,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let id = get_subscriber_id_from_token(&pool, &parameters.subscription_token)
+        .await
+        .map_err(e500)?;
 
     match id {
         Some(subscriber_id) => {
-            if confirm_subscriber(&pool, subscriber_id).await.is_err() {
-                return HttpResponse::InternalServerError().finish();
-            }
-            HttpResponse::Ok().finish()
+            confirm_subscriber(&pool, subscriber_id)
+                .await
+                .map_err(e500)?;
+            Ok(HttpResponse::Ok().finish())
         }
-        _ => HttpResponse::Unauthorized().finish(),
+        _ => Ok(HttpResponse::Unauthorized().finish()),
     }
 }
 
