@@ -92,6 +92,8 @@ global:
       database: newsletter
 
 postgresql:
+  image:
+    tag: bitnami/postgresql:15.4.0-debian-11-r55
   primary:
     podSecurityContext:
       enabled: false
